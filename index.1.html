@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+	</head>
+	<style type="text/css">
+		* {
+			padding: 0; margin: 0;
+		}
+		.main {
+			border: solid 1px black;
+			width: 600px; height: 512px;
+			background: url(img/bg_day.png) 0px 0;
+			margin: 20px auto;
+			position: relative;
+			overflow: hidden;
+		}
+		.bird {
+			width: 37px; height: 27px;
+			background: url(img/bird0_0.png) no-repeat center;
+			position: absolute;
+			left: 50px; top: 200px;
+		}
+		.gameover {
+			width: 204px; height: 54px;
+			background: url(img/text_game_over.png);
+			margin: auto;
+			left: 0; top: 0; right: 0; bottom: 0;
+			position: absolute;
+			display: none;
+		}
+		.title {
+			width: 178px; height: 48px;
+			background: url(img/title.png);
+			margin: auto;
+			left: 0; top: 0; right: 0; bottom: 0;
+			position: absolute;
+		}
+		.bluebird {
+			display: block;
+			margin: 70px auto;
+		}
+		.start {
+			display: block;
+			position: absolute;
+			left: 240px; top:300px;
+			cursor: pointer;
+		}
+		.upPipe{
+			width:52px ;
+			height: 320px;
+			position: absolute;
+			right: 0;
+			background: url(img/pipe_up.png);
+		}
+		.downPipe{
+			width:52px ;
+			height: 320px;
+			position: absolute;
+			background: url(img/pipe_down.png);
+			right: 0;
+		}
+		#scorediv{
+			width: 105px;
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 100px;
+			margin: auto;
+		}
+		#scorediv img{
+			width: 35px;
+		}
+	</style>
+	<body>
+		<div class="main">
+			<div class="bird" style="display: none;"></div>
+			
+			<div class="gameover">
+				
+			</div>
+			
+			<div class="title">
+				
+			</div>
+			<img class="bluebird" src="img/bird1_0.png"/>
+			
+			<img class="start" src="img/button_play.png"/>
+			<div id="scorediv">
+				<img class="score"><img class="score"><img class="score">
+			</div>
+			
+		</div>
+		
+	</body>
+	<script src="js/common.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		//管道
+		function pipe(type){
+			this.init = function(up_top){
+				this.ele = document.createElement("div");
+				switch(type){
+					case pipe_off_down :{
+						this.ele.className = "downPipe"; 
+						this.ele.style.top = randomNumber(0,-200)+"px";
+						game.appendChild(this);
+						this.up_top = 320+this.ele.offsetTop;//上管道露出来的长度
+						break ;
+					} 
+					case pipe_off_up :{
+						this.ele.className = "upPipe"; 
+						this.ele.style.bottom =randomNumber(120-up_top,-220) +"px";	
+						game.appendChild(this);
+					}		
+				}
+				this.move();
+				return this.up_top;
+			}
+			this.gameisover=true ;
+			this.move = function(){
+				var speed = 0;
+				this.timer = setInterval(function(){
+					
+					speed+=5
+					this.ele.style.right = speed++ +"px";
+					if(parseInt(getStyle(yellowbird.ele).right)-2==parseInt(this.ele.style.right)){
+						
+// 						if(parseInt(getStyle(yellowbird.ele).bottom)+parseInt(getStyle(yellowbird.ele).height)-2==parseInt(getStyle(this.ele).bottom)){
+// 							
+// 						}else{
+// 							this.gameisover = flase;
+// 							game.scoreSystem(this.gameisover)
+// 							this.gameisover = true;
+// 						}
+					}
+					if(this.ele.className=="downPipe"){
+						
+						if(parseInt(getStyle(yellowbird.ele).right)<=parseInt(this.ele.style.right)+parseInt(getStyle(this.ele).width)&&parseInt(this.ele.style.right)<=parseInt(getStyle(yellowbird.ele).right)){
+							if(parseInt(getStyle(yellowbird.ele).bottom)+parseInt(getStyle(yellowbird.ele).height)>=parseInt(getStyle(this.ele).bottom)){
+								yellowbird.ele.remove()
+								clearInterval(yellowbird.fly());
+								clearInterval(game.start());
+								// clearInterval(this.timer);
+							}
+						}
+						
+					}
+					if(this.ele.className=="upPipe"){
+					
+						if((parseInt(getStyle(yellowbird.ele).right)<=parseInt(this.ele.style.right)+parseInt(getStyle(this.ele).width))&&(parseInt(getStyle(yellowbird.ele).right)>=parseInt(this.ele.style.right))){
+							// alert(parseInt(getStyle(yellowbird.ele).bottom));
+								
+							if(parseInt(getStyle(yellowbird.ele).top)+parseInt(getStyle(yellowbird.ele).height)>=parseInt(getStyle(this.ele).top)){
+								yellowbird.ele.remove()
+								clearInterval(yellowbird.fly());
+								clearInterval(game.start());
+								// clearInterval(this.timer);
+							}
+						}
+						if((parseInt(getStyle(yellowbird.ele).right)-2==parseInt(this.ele.style.right)+parseInt(getStyle(this.ele).width))&&(parseInt(getStyle(yellowbird.ele).right)>=parseInt(this.ele.style.right))){
+							// alert(parseInt(getStyle(yellowbird.ele).bottom));
+								
+							if(parseInt(getStyle(yellowbird.ele).top)+parseInt(getStyle(yellowbird.ele).height)-2==parseInt(getStyle(this.ele).top)){
+								
+								
+							}else{
+								this.gameisover = flase;
+								game.scoreSystem(this.gameisover)
+								this.gameisover = true;
+							}
+						}
+					}
+					
+				}.bind(this),30);
+				
+				return this.timer;
+			}
+			
+		}
+		//蓝色的鸟
+		var bluebird = {
+			ele :document.getElementsByClassName("bluebird")[0],
+			position :function(){
+				var speed = 0;
+				var chibang = 0
+				var initMargin = parseInt(getStyle(this.ele).marginTop);
+				setInterval(function(){
+					speed+=5;
+					chibang++;
+					this.ele.style.marginTop = initMargin - Math.sin(Math.PI/180*speed)*50 +"px";
+					bluebird.ele.src="img/bird1_"+(Math.abs(chibang%3))+".png"
+				}.bind(this),30)
+			}
+		}
+		//黄色的鸟
+		var yellowbird = {
+			ele : document.getElementsByClassName("bird")[0],
+			fly : function(){
+				var yellowbird_height = getStyle(yellowbird.ele).top;
+				this.speed = 0;
+				this.timer = setInterval(function(){
+					this.speed++;
+					yellowbird.ele.style.top = yellowbird.ele.offsetTop + this.speed+ "px";
+					yellowbird.ele.style.background ="url(img/bird0_"+(Math.abs(this.speed%3))+".png) no-repeat center";
+
+					if(parseInt(yellowbird.ele.offsetTop)>=parseInt(game.ele.clientHeight)-parseInt(yellowbird.ele.offsetHeight)||parseInt(yellowbird.ele.offsetTop)<=0){
+						game.gameover();
+						clearInterval(this.timer);
+					}
+				
+				}.bind(this),30)
+				
+				this.play();
+				return this.timer;
+			},
+			play : function(){
+				document.addEventListener("keydown",function(){
+					this.speed-=10;
+				}.bind(this))
+			}
+		}
+		var game = {
+			ele : document.getElementsByClassName("main")[0],
+			start_btn : document.getElementsByClassName("start")[0],
+			title:document.getElementsByClassName("title")[0],
+			tip : document.getElementsByClassName("gameover")[0],
+			scoreList : document.getElementsByClassName("score"),
+			
+			background : {
+				move : function(){
+					var speed = 0;
+					setInterval(function(){
+						speed+=5;
+						game.ele.style.backgroundPositionX = -speed +"px";
+					},30)
+				}
+ 			},
+			start :function(){
+				game.start_btn.remove();
+				game.title.remove();
+				bluebird.ele.remove();
+				yellowbird.ele.style.display="block";
+				yellowbird.fly();
+				this.timer = setInterval(function(){
+					var ttt =  new pipe(pipe_off_down).init();
+					new pipe(pipe_off_up).init(ttt);
+					
+				},3000)
+				game.scoreSystem()
+				return this.timer;
+			},
+			init : function(){
+				game.start_btn.addEventListener('click',this.start);
+				
+			},
+			gameover : function(){
+				this.tip.style.display = "block";
+				yellowbird.ele.remove()
+			},
+			appendChild : function(ele){
+				this.ele.appendChild(ele.ele);
+			},
+			scoreSystem : function(e){
+				if(!e){
+					console.log(66666666666)
+				}
+				this.scoreList[0].src = "img/score__0.png";
+				this.scoreList[1].src = "img/score__0.png";
+				this.scoreList[2].src = "img/score__0.png";
+			}
+		}
+		
+	
+		var pipe_off_up = 1;
+		var pipe_off_down = 0;
+		bluebird.position();
+		game.background.move();
+		game.init();
+	</script>
+</html>
